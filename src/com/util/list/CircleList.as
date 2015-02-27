@@ -3,6 +3,7 @@
  */
 package com.util.list {
   public class CircleList extends List {
+
     public function CircleList() {
       super();
     }
@@ -16,6 +17,7 @@ package com.util.list {
         _last.next = note;
       }
     }
+
     public function remove(note:Note):void{
       var tmp:Note = this._head;
       var prev:Note = null;

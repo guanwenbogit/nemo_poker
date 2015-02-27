@@ -3,15 +3,13 @@
  */
 package com.poker.texasPoker {
   import com.poker.api.IPokerPlayer;
-  import com.poker.simple.ActionQueue;
-  import com.poker.texasPoker.TexasTable;
 
   public class TexasFlow {
     private var _players:Vector.<IPokerPlayer>;
-    private var _dealer:Object;
-    private var _blind1:Object;
-    private var _blind2:Object;
-    private var _queue:ActionQueue;
+    private var _dealer:IPokerPlayer;
+    private var _blind1:IPokerPlayer;
+    private var _blind2:IPokerPlayer;
+    private var _queue:TexasQueue;
     private var _betPool:BetPool;
     private var _state:String = "";
     private var _currentBlind:int = 0;
@@ -27,14 +25,6 @@ package com.poker.texasPoker {
       setQueue();
       setDealer();
     }
-    public function restart():void{
-      this._betPool.clear();
-      resetDealer();
-      
-    }
-    private function resetDealer():void {
-      this._queue.setHead(this._dealer);
-    }
     private function setQueue():void {
       for each(var p:IPokerPlayer in this._players){
         this._queue.append(p);
@@ -42,16 +32,16 @@ package com.poker.texasPoker {
     }
 
     private function setDealer():void{
-      var index:int = Math.floor(Math.random()*this._players.length);
-      this._dealer = this._players[index];
+      var index:int = Math.floor(Math.random()*this._table.max);
+      this._table.setHead(index);
+      this._dealer = this._table.next();
       this._queue.setHead(this._dealer);
-      if(this._queue.length > 2){
-        this._blind1 = this._queue.getObjByIndex(1);
-        this._blind2 = this._queue.getObjByIndex(2);
+      if(this._queue.length>2){
+        this._blind1 = this._queue.next;
       }else{
         this._blind1 = this._dealer;
-        this._blind2 = this._queue.getObjByIndex(1);
       }
+      this._blind2 = this._queue.next;
     }
 
     private function autoBet(player:Object,num:int):void{
@@ -61,7 +51,7 @@ package com.poker.texasPoker {
 
     }
     public function appendReward(num:int):void{
-      this._betPool.appendReward(num);
+
     }
     public function blind():void{
       this._queue.setHead(this._blind1);
@@ -71,8 +61,9 @@ package com.poker.texasPoker {
     public function perFlop():void{
       this._state = TexasStates.PERFLOP;
       sendHands();
-      action(this._queue.next);
+
     }
+
 
     public function flop():void{
       this._state = TexasStates.FLOP;
